@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using System.IO;
+using TMPro;
 
 public class GameManager : MonoBehaviour
 {
@@ -12,6 +13,8 @@ public class GameManager : MonoBehaviour
     public GameObject currentCheckpoint;    //reference to the current gameobject
     public int currentCheckpointLevelIndex; //the level index in which the current checkpoint exists
     private int saveDataLenght;     //the amount of variables saved
+    [SerializeField] TextMeshProUGUI fpsText;
+    [SerializeField] float fpsUpdateTimer;
 
     private void Awake()
     {
@@ -25,6 +28,9 @@ public class GameManager : MonoBehaviour
         {
             Destroy(gameObject);
         }
+
+        if (Application.isMobilePlatform) Application.targetFrameRate = 60;
+        StartCoroutine(UpdateFPSText());
     }
 
     private void OnEnable()
@@ -41,6 +47,14 @@ public class GameManager : MonoBehaviour
         EventManager.PlayerDied -= LoadCheckpoint;
     }
 
+    IEnumerator UpdateFPSText()
+    {
+        while (fpsText)
+        {
+            fpsText.SetText("FPS: " + (1f / Time.unscaledDeltaTime).ToString("0.0"));
+            yield return new WaitForSecondsRealtime(fpsUpdateTimer);
+        }
+    }
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
